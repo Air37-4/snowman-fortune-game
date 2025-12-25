@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Олаф и предсказания 2026</title>
+  <style>
+    :root {
+      --bg-top: #0b1b33;
+      --bg-bottom: #113a63;
+      --accent: #cde7ff;
+      --accent-2: #8be0ff;
+      --text: #e9f1ff;
+      --card: rgba(11, 25, 39, 0.75);
+      --glow: rgba(139, 224, 255, 0.35);
+      --highlight: #ffe8a3;
+      --title-font: "Playfair Display", "Georgia", serif;
+      --body-font: "Fira Sans", "Gill Sans", "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+      color: var(--text);
+      font-family: var(--body-font);
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      letter-spacing: 0.04em;
+      font-family: var(--title-font);
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      text-align: center;
+    }
+
+    p {
+      margin: 0;
+      opacity: 0.94;
+      line-height: 1.55;
+      font-size: 16px;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .fortune-card {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(5, 14, 26, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: var(--text);
+      padding: 22px 26px;
+      border-radius: 22px;
+      min-width: 280px;
+      width: min(92vw, 860px);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: transform 280ms ease, box-shadow 280ms ease, opacity 280ms ease;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .fortune-card.show {
+      transform: translate(-50%, -50%) scale(1);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .fortune-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--highlight);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .fortune-text {
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .floating-dot {
+      position: fixed;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 20px var(--accent-2);
+      opacity: 0.45;
+      filter: blur(1px);
+      animation: drift 12s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-dot:nth-child(1) { left: 10%; top: 16%; animation-delay: 0s; }
+    .floating-dot:nth-child(2) { left: 70%; top: 26%; animation-delay: 1.5s; }
+    .floating-dot:nth-child(3) { left: 45%; top: 8%; animation-delay: 3s; }
+    .floating-dot:nth-child(4) { left: 82%; top: 48%; animation-delay: 4.5s; }
+
+    @keyframes drift {
+      0% { transform: translateY(0px) translateX(0px); opacity: 0.55; }
+      50% { transform: translateY(20px) translateX(8px); opacity: 0.85; }
+      100% { transform: translateY(0px) translateX(0px); opacity: 0.55; }
+    }
+
+    .intro {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      z-index: 4;
+      transition: opacity 0.8s ease;
+    }
+
+    .intro-card {
+      padding: 22px 26px;
+      background: rgba(7, 17, 31, 0.76);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+      max-width: 720px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .intro-card .sub {
+      color: var(--highlight);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .intro-card p { margin-top: 12px; }
+
+    .intro.hide { opacity: 0; visibility: hidden; }
+
+    .timer {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      z-index: 3;
+    }
+
+    .timer.expired {
+      color: #ffb3b3;
+      border-color: rgba(255, 179, 179, 0.45);
+      background: rgba(84, 20, 29, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-dot"></div>
+  <div class="floating-dot"></div>
+  <div class="floating-dot"></div>
+  <div class="floating-dot"></div>
+
+  <div class="intro">
+    <div class="intro-card">
+      <h1 style="text-transform: uppercase; font-size: 18px; line-height: 1.5;">
+        ПРЕДСКАЗАНИЯ 2026 СПРЯТАНЫ В СНЕЖИНКАХ. НАЙДИ СВОЮ И ТАПНИ/КЛИКНИ. У ТЕБЯ 30 СЕК.
+      </h1>
+    </div>
+  </div>
+
+  <div class="timer" id="timer">0:30</div>
+
+  <canvas id="scene"></canvas>
+
+  <div class="fortune-card" id="fortuneCard">
+    <div class="fortune-title">✨ Твоё предсказание 2026</div>
+    <div class="fortune-text" id="fortuneText">Нажми на снежинку, чтобы узнать что-то хорошее.</div>
+  </div>
+
+  <script>
+    console.log("snowman app booting");
+    const canvas = document.getElementById("scene");
+    const ctx = canvas.getContext("2d");
+    const timerEl = document.getElementById("timer");
+
+    const predictions = (() => {
+      const list = [
+      "В 2026 ты поймаешь шанс, который сделает твою жизнь проще и ярче, как будто включили дополнительное солнце.",
+      "Твой талант заметят в неожиданный момент, и это запустит цепочку приятных событий.",
+      "Дверь, которая раньше была закрыта, откроется без усилий, потому что ты уже готов ко входу.",
+      "Будет встреча, которая превратит смелую идею в реальность — готовься принимать поздравления.",
+      "Ты найдёшь занятие, от которого будешь заряжаться как от первой чашки кофе утром.",
+      "Смена обстановки подарит тебе вдохновение и принесёт новый круг классных людей.",
+      "Деньги придут через проект, который делал(а) просто из любопытства — удивишься, насколько это приятно.",
+      "Ты научишься отдыхать без чувства вины, и это станет твоей суперсилой.",
+      "Чудесно совпадут сроки и возможности, и ты успеешь больше, чем планировал(а), сохранив лёгкость.",
+      "Кто-то скажет именно те слова поддержки, которые давно хотелось услышать, и они попадут в точку.",
+      "Случайная поездка окажется лучшим решением года и приведёт к важному знакомству.",
+      "Ты поймёшь, что можешь отказаться от лишнего — и это освободит силы для настоящего важного.",
+      "Старый навык пригодится и неожиданно принесёт бонусы — судьба любит такие твисты.",
+      "Будет момент, когда все пазлы сложатся, и ты увидишь, что двигаешься правильным курсом.",
+      "Ты поймаешь волну удачи и аккуратно её проведёшь — уверенность станет твоей привычкой.",
+      "Новое хобби станет источником дохода или радости (или и того, и другого).",
+      "Твоё терпение окупится — результат превысит ожидания, и это точно почувствуется.",
+      "Ты получишь благодарность за то, что делал(а) от души, и она запомнится надолго.",
+      "В следующем году ты встретишь человека, с которым идеи превращаются в планы за один разговор.",
+      "Твоя любопытность выведет к открытию, которое окажется полезным не только тебе.",
+      "Новый привычный день принесёт необычный поворот — он окажется началом серии удач.",
+      "Ты найдёшь спокойное место, где мысли складываются в чёткие решения.",
+      "Твоё умение слушать подарит тебе важный инсайт от близкого человека.",
+      "Случайный комплимент зарядит энергией и подтолкнёт к смелому шагу.",
+      "Ты научишься легче говорить «нет» лишнему — и освободишь время для главного.",
+      "Взгляд со стороны поможет увидеть талант, который был в тебе давно.",
+      "Ты встретишь команду, с которой будет приятно строить что-то новое.",
+      "Долгий разговор с другом превратится в идею, которую захочется воплотить.",
+      "Ты поймёшь, что тебя ценят за то, что кажется тебе привычным.",
+      "К тебе вернётся дело, к которому давно хотел(а) вернуться, и оно пойдёт легко.",
+      "Ты ощутишь, как терпение оборачивается результатом в нужный момент.",
+      "Твои слова поддержки для кого-то станут решающими — и вернётся благодарностью.",
+      "Ты вспомнишь старую мечту и удивишься, насколько она стала ближе.",
+      "Ты найдёшь новый способ отдыхать — и он даст сил больше, чем ожидал(а).",
+      "Будет ситуация, где интуиция подскажет — и окажется права.",
+      "Ты увидишь, что маленькие шаги создают большой сдвиг — и вдохновишься продолжать.",
+      "Ты сможешь отказаться от навязанной цели и выбрать свою — это принесёт облегчение.",
+      "Кто-то честно признает твою работу, и это станет важным маркером года.",
+      "Ты обнаружишь ресурс, которым уже владеешь, и начнёшь использовать его смелее.",
+      "Тебя пригласят туда, где окажется нужное знакомство или идея.",
+      "Ты почувствуешь, что можешь позволить себе больше свободы — и всё сложится лучше.",
+      "Ты получишь подтверждение, что твой путь выбран правильно, даже если он нетрадиционный.",
+      "Будет день, когда ты поймаешь себя на улыбке без причины — и осознаешь, что это нормально.",
+      "Ты научишься проще просить о помощи, и это ускорит важный результат.",
+      "Неожиданная поддержка придёт от того, от кого не ждал(а).",
+      "Ты найдёшь баланс между «хочу» и «надо», и это станет твоей опорой.",
+      "Твой выбор быть честным(ой) с собой приведёт к шагу, который давно откладывался.",
+      "Старое письмо или заметка напомнит тебе, что ты уже многое умеешь.",
+      "Ты увидишь, что твоя доброта вернулась, когда была нужна поддержка.",
+      "Внутренний критик станет тише, потому что ты увидишь реальные успехи.",
+      "Твоя смелость отказаться от лишнего откроет место для нового — и оно окажется лучше.",
+      "Ты обнаружишь новый ритуал, который приносит спокойствие и концентрацию.",
+      "Будет момент, когда случайная книга/статья даст точный ответ на вопрос.",
+      "Ты получишь приглашение, от которого невозможно отказаться — и не пожалеешь.",
+      "Твоё внимание к мелочам спасёт от большой ошибки — и это заметят.",
+      "Ты поймёшь, что тебя уважают за последовательность, даже когда нет мгновенных результатов.",
+      "Смена ритма — даже на пару дней — принесёт большую ясность.",
+      "Ты найдёшь способ сделать важное проще — и другие захотят делать так же.",
+      "Ты увидишь, что можешь быть мягким(ой) и при этом настойчивым(ой) — и это сработает.",
+      "В нужный момент у тебя окажется достаточно сил, чтобы завершить сложное.",
+      "Ты почувствуешь, что можешь доверять себе — и это станет главной опорой года.",
+      "Твои идеи обретут форму, когда появится человек, который их услышит и поддержит.",
+      "Ты поймаешь себя на мысли, что мечта стала планом — и начнёшь его делать."
+      ];
+      return list.slice(0, 60);
+    })();
+
+    const snowflakes = [];
+    const snowflakeCount = 420; // чтобы при каждой 7-й хватило на все предсказания
+    const fortuneCount = predictions.length; // 60 уникальных
+    const fortuneOffset = Math.floor(Math.random() * 7); // случайный сдвиг, чтобы позиции менялись
+    const cubes = [
+      { color: "#5cd1ff", glow: "rgba(92, 209, 255, 0.7)" },
+      { color: "#7aff85", glow: "rgba(122, 255, 133, 0.7)" },
+      { color: "#ff6fa5", glow: "rgba(255, 111, 165, 0.7)" }
+    ];
+    const jugglingBalls = cubes.map((cube, idx) => ({ angle: (idx / cubes.length) * Math.PI * 2, cube, x: 0, y: 0 }));
+
+    const INTRO_DURATION = 6000;
+    const GAME_DURATION = 30 * 1000;
+    const introStart = performance.now();
+    let startTime = null;
+    let gameActive = false;
+    let musicStarted = false;
+    let audioCtx;
+
+    let groundY = 0;
+    let lastTime = 0;
+    let olafSize = { w: 260, h: 420 };
+    let snowmanX = 0;
+    let snowmanTargetX = 0;
+    let wind = 0;
+    let windTarget = 0;
+    let windTimer = 0;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      groundY = canvas.height * 0.82;
+      const maxH = canvas.height * 0.58;
+      const ratio = olafSize.w / olafSize.h;
+      olafSize.h = Math.min(maxH, 420);
+      olafSize.w = olafSize.h * ratio;
+      snowmanX = canvas.width * 0.7;
+      snowmanTargetX = canvas.width * 0.3;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    function createSnowflake(id, isFortune = false, message = null, fortuneSmall = false) {
+      const smallBase = Math.random() * 5 + 5;      // 5..10
+      const bigBase = Math.random() * 12 + 16;      // 16..28
+      const bigChance = 0.35;
+      const base = isFortune
+        ? (fortuneSmall ? smallBase : Math.random() < bigChance ? bigBase : smallBase)
+        : Math.random() < bigChance ? bigBase : smallBase;
+      const size = base;
+      return {
+        id,
+        x: Math.random() * canvas.width,
+        y: -Math.random() * canvas.height,
+        radius: size,
+        speed: 0.35 + size * 0.035,
+        sway: Math.random() * 1 + 0.6,
+        phase: Math.random() * Math.PI * 2,
+        spin: Math.random() * 0.03 + 0.006,
+        angle: 0,
+        type: Math.floor(Math.random() * 4),
+        isFortune,
+        fortuneSmall,
+        message
+      };
+    }
+
+    // Инициализация: каждая 7-я (со смещением) несёт уникальное предсказание
+    let fortuneAssigned = 0;
+    for (let i = 0; i < snowflakeCount; i++) {
+      const isFortune = fortuneAssigned < fortuneCount && (i % 7 === fortuneOffset);
+      const smallFortune = Math.random() < 0.7;
+      const message = isFortune ? predictions[fortuneAssigned++] : null;
+      const flake = createSnowflake(i, isFortune, message, smallFortune);
+      if (isFortune && smallFortune) {
+        flake.radius = Math.min(flake.radius, 14);
+      }
+      snowflakes.push(flake);
+    }
+
+    function drawBackground() {
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, "rgba(6, 12, 24, 1)");
+      gradient.addColorStop(1, "rgba(10, 24, 44, 1)");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(255,255,255,0.02)";
+      for (let i = 0; i < 40; i++) {
+        const x = (i * 120 + 30) % canvas.width;
+        const y = (i * 50 + 10) % canvas.height;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 120, 60, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
+      ctx.shadowColor = "rgba(255, 255, 255, 0.35)";
+      ctx.shadowBlur = 30;
+      ctx.beginPath();
+      ctx.ellipse(canvas.width / 2, groundY + 36, canvas.width * 0.75, 140, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function updateSnowman(delta) {
+      const move = (snowmanTargetX - snowmanX) * 0.0015 * delta;
+      snowmanX += move;
+      if (Math.abs(snowmanTargetX - snowmanX) < 10) {
+        snowmanTargetX = canvas.width * (0.25 + Math.random() * 0.5);
+      }
+      const margin = olafSize.w * 0.4;
+      snowmanX = Math.max(margin, Math.min(canvas.width - margin, snowmanX));
+    }
+
+    function drawOlaf(timestamp) {
+      const sway = Math.sin(timestamp * 0.001) * canvas.width * 0.04;
+      const cx = snowmanX + sway;
+      const bottomY = groundY - 8;
+      const scale = olafSize.h / 520;
+      const baseR = 70 * scale;
+      const midR = 52 * scale;
+      const headR = 42 * scale;
+
+      ctx.save();
+      ctx.translate(cx, bottomY);
+      ctx.shadowColor = "rgba(0,0,0,0.28)";
+      ctx.shadowBlur = 22;
+
+      // body
+      const bodyGrad = ctx.createRadialGradient(0, -baseR * 0.6, baseR * 0.3, 0, -baseR * 0.6, baseR * 1.4);
+      bodyGrad.addColorStop(0, "#ffffff");
+      bodyGrad.addColorStop(1, "#f7fbff");
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = "rgba(70, 104, 145, 0.2)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, -baseR, baseR * 1.05, baseR * 0.95, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(0, -baseR - midR * 1.2, midR * 1.05, midR * 1.05, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // scarf
+      ctx.fillStyle = "#66b5ff";
+      ctx.fillRect(-midR * 1.05, -baseR - midR * 0.95, midR * 2.1, 10 * scale);
+      ctx.fillRect(-6 * scale, -baseR - midR * 0.95, 12 * scale, midR * 0.9);
+
+      const headCenterY = -baseR - midR * 2.1 - headR * 0.4;
+      ctx.beginPath();
+      ctx.ellipse(0, headCenterY, headR, headR * 0.96, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // hat
+      // ведёрко
+      ctx.fillStyle = "#4c4c50";
+      ctx.fillRect(-headR * 0.95, headCenterY - headR * 2.15, headR * 1.9, headR * 0.9);
+      ctx.fillRect(-headR * 1.15, headCenterY - headR * 1.4, headR * 2.3, headR * 0.18);
+      ctx.fillStyle = "#9bb6c9";
+      ctx.fillRect(-headR * 0.95, headCenterY - headR * 1.95, headR * 1.9, headR * 0.18);
+
+      // buttons (coal)
+      ctx.fillStyle = "#2f506f";
+      [ -baseR * 0.1, -midR * 0.7, -midR * 1.35 ].forEach((yOff) => {
+        ctx.beginPath();
+        ctx.arc(0, -baseR + yOff, 5 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // arms (branches)
+      ctx.strokeStyle = "#9b6a3a";
+      ctx.lineWidth = 6 * scale;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-midR - 20 * scale, -baseR - midR * 0.9);
+      ctx.lineTo(-midR - 70 * scale, -baseR - midR * 1.2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(midR + 20 * scale, -baseR - midR * 0.9);
+      ctx.lineTo(midR + 70 * scale, -baseR - midR * 1.2);
+      ctx.stroke();
+
+      // head details
+      ctx.fillStyle = "#1b2f46";
+      ctx.beginPath();
+      ctx.arc(-12 * scale, headCenterY - 2 * scale, 6 * scale, 0, Math.PI * 2);
+      ctx.arc(12 * scale, headCenterY - 2 * scale, 6 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(-14 * scale, headCenterY - 4 * scale, 2 * scale, 0, Math.PI * 2);
+      ctx.arc(10 * scale, headCenterY - 4 * scale, 2 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      // убрали румянец
+
+      // carrot nose
+      ctx.strokeStyle = "#f58b1f";
+      ctx.lineWidth = 6 * scale;
+      ctx.beginPath();
+      ctx.moveTo(0, headCenterY + 4 * scale);
+      ctx.lineTo(30 * scale, headCenterY + 8 * scale);
+      ctx.stroke();
+
+      // mouth + teeth
+      ctx.strokeStyle = "#1b2f46";
+      ctx.lineWidth = 3 * scale;
+      ctx.beginPath();
+      ctx.arc(0, headCenterY + 18 * scale, 18 * scale, 0.1 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+
+      // eyebrow hint
+      ctx.beginPath();
+      ctx.moveTo(-18 * scale, headCenterY - 12 * scale);
+      ctx.lineTo(-2 * scale, headCenterY - 16 * scale);
+      ctx.moveTo(18 * scale, headCenterY - 12 * scale);
+      ctx.lineTo(2 * scale, headCenterY - 16 * scale);
+      ctx.stroke();
+
+      // twig hair
+      ctx.strokeStyle = "#9b6a3a";
+      ctx.lineWidth = 4 * scale;
+      ctx.beginPath();
+      ctx.moveTo(0, headCenterY - headR - 6 * scale);
+      ctx.lineTo(0, headCenterY - headR - 32 * scale);
+      ctx.moveTo(0, headCenterY - headR - 22 * scale);
+      ctx.lineTo(12 * scale, headCenterY - headR - 34 * scale);
+      ctx.moveTo(0, headCenterY - headR - 18 * scale);
+      ctx.lineTo(-12 * scale, headCenterY - headR - 30 * scale);
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      drawJugglingBalls(cx, bottomY - baseR - midR * 1.4);
+      ctx.restore();
+    }
+
+    function drawCube(x, y, size, cube) {
+      ctx.save();
+      ctx.shadowColor = cube.glow;
+      ctx.shadowBlur = 18;
+      const gradient = ctx.createRadialGradient(x - size * 0.2, y - size * 0.2, size * 0.1, x, y, size);
+      gradient.addColorStop(0, "#ffffff");
+      gradient.addColorStop(0.3, cube.color);
+      gradient.addColorStop(1, cube.color);
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // блик
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.beginPath();
+      ctx.arc(x - size * 0.15, y - size * 0.15, size * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawJugglingBalls(cx, cyBase) {
+      const orbitX = 90;
+      const orbitY = 32;
+      const size = 30;
+      ctx.save();
+      ctx.translate(cx, cyBase);
+      jugglingBalls.forEach((ball) => {
+        const x = Math.sin(ball.angle) * orbitX;
+        const y = Math.cos(ball.angle) * orbitY - 26;
+        ball.x = cx + x;
+        ball.y = cyBase + y;
+        drawCube(x, y, size, ball.cube);
+      });
+      ctx.restore();
+    }
+
+    function drawSnowflake(flake) {
+      ctx.save();
+      ctx.translate(flake.x, flake.y);
+      ctx.rotate(flake.angle);
+      const mainColor = "rgba(255,255,255,0.9)";
+      const fillColor = flake.isFortune ? "rgba(255, 255, 255, 0.24)" : "rgba(255,255,255,0.18)";
+      ctx.strokeStyle = mainColor;
+      ctx.fillStyle = fillColor;
+      ctx.lineWidth = flake.isFortune ? 2.6 : 2.2;
+      ctx.shadowColor = mainColor;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+
+      const r = flake.radius;
+      if (flake.type === 0) {
+        for (let i = 0; i < 6; i++) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(r, 0);
+          ctx.moveTo(r * 0.55, 0);
+          ctx.lineTo(r * 0.75, r * 0.22);
+          ctx.moveTo(r * 0.55, 0);
+          ctx.lineTo(r * 0.75, -r * 0.22);
+          ctx.moveTo(r * 0.8, 0);
+          ctx.lineTo(r * 0.92, r * 0.14);
+          ctx.moveTo(r * 0.8, 0);
+          ctx.lineTo(r * 0.92, -r * 0.14);
+          ctx.rotate(Math.PI / 3);
+        }
+      } else if (flake.type === 1) {
+        for (let i = 0; i < 8; i++) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(r * 0.92, 0);
+          ctx.moveTo(r * 0.4, 0);
+          ctx.lineTo(r * 0.65, r * 0.18);
+          ctx.moveTo(r * 0.4, 0);
+          ctx.lineTo(r * 0.65, -r * 0.18);
+          ctx.rotate(Math.PI / 4);
+        }
+      } else if (flake.type === 2) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+        ctx.stroke();
+        for (let i = 0; i < 6; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(r * 0.9, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(r * 0.45, 0);
+          ctx.lineTo(r * 0.7, r * 0.2);
+          ctx.moveTo(r * 0.45, 0);
+          ctx.lineTo(r * 0.7, -r * 0.2);
+          ctx.stroke();
+          ctx.rotate(Math.PI / 3);
+        }
+      } else {
+        // кольцевые ветви с кругами на концах
+        for (let i = 0; i < 6; i++) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(r * 0.85, 0);
+          ctx.moveTo(r * 0.35, 0);
+          ctx.lineTo(r * 0.55, r * 0.18);
+          ctx.moveTo(r * 0.35, 0);
+          ctx.lineTo(r * 0.55, -r * 0.18);
+          ctx.rotate(Math.PI / 3);
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.stroke();
+
+      // кончики-капли
+      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+      const tips = flake.type === 1 ? 8 : flake.type === 2 ? 12 : 6;
+      const step = (Math.PI * 2) / tips;
+      for (let i = 0; i < tips; i++) {
+        const ang = i * step;
+        const tx = Math.cos(ang) * r;
+        const ty = Math.sin(ang) * r;
+        ctx.beginPath();
+        ctx.arc(tx, ty, Math.max(1.8, r * 0.08), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // core shimmer + внутренний кружок
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.35, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    function updateWind(delta) {
+      windTimer -= delta;
+      if (windTimer <= 0) {
+        windTarget = (Math.random() * 2 - 1) * 1.2; // -1.2..1.2
+        windTimer = 2000 + Math.random() * 2000;
+      }
+      wind += (windTarget - wind) * 0.0025 * delta;
+    }
+
+    function updateSnowflakes(delta) {
+      updateWind(delta);
+      snowflakes.forEach((flake) => {
+        flake.y += flake.speed * delta * 0.09; // быстрее падение
+        flake.x += Math.sin(flake.phase + flake.y * 0.02) * flake.sway + wind * delta * 0.05;
+        flake.angle += flake.spin * delta;
+
+        if (flake.y > canvas.height + flake.radius) {
+          const idx = flake.id;
+          Object.assign(flake, createSnowflake(idx, flake.isFortune, flake.message, flake.fortuneSmall), { y: -flake.radius });
+        }
+      });
+    }
+
+    function renderSnowflakes() {
+      snowflakes.forEach(drawSnowflake);
+    }
+
+    function updateJuggling(delta) {
+      const speed = 0.0042 * delta;
+      jugglingBalls.forEach((ball) => {
+        ball.angle += speed;
+      });
+    }
+
+    function drawGlow() {
+      const grd = ctx.createRadialGradient(
+        snowmanX || canvas.width / 2,
+        groundY - 80,
+        20,
+        snowmanX || canvas.width / 2,
+        groundY - 80,
+        260
+      );
+      grd.addColorStop(0, "rgba(139, 224, 255, 0.28)");
+      grd.addColorStop(1, "rgba(139, 224, 255, 0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function updateTimer(now) {
+      if (!startTime) {
+        timerEl.textContent = "0:30";
+        return;
+      }
+      const elapsed = now - startTime;
+      const remaining = Math.max(0, GAME_DURATION - elapsed);
+      const seconds = Math.ceil(remaining / 1000);
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      timerEl.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+
+      if (remaining <= 0 && gameActive) {
+        gameActive = false;
+        timerEl.classList.add("expired");
+        document.getElementById("fortuneText").textContent = "Время вышло";
+        document.getElementById("fortuneCard").classList.add("show");
+      }
+    }
+
+    function tick(timestamp) {
+      const delta = timestamp - lastTime || 16;
+      lastTime = timestamp;
+
+      // старт игры после интро
+      if (!startTime && timestamp - introStart >= INTRO_DURATION) {
+        startTime = timestamp;
+        gameActive = true;
+        document.querySelector(".intro")?.classList.add("hide");
+      }
+
+      drawBackground();
+      drawGlow();
+      updateSnowflakes(delta);
+      renderSnowflakes();
+      updateJuggling(delta);
+      updateSnowman(delta);
+      drawOlaf(timestamp);
+      updateTimer(timestamp);
+
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+
+    function startMusic() {
+      if (musicStarted) return;
+      musicStarted = true;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.12;
+      master.connect(audioCtx.destination);
+
+      const bpm = 128;
+      const beat = 60 / bpm;
+      const notes = [262, 330, 392, 330, 440, 392, 330, 294];
+
+      function play(index, time) {
+        const osc = audioCtx.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.value = notes[index % notes.length];
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, time);
+        gain.gain.exponentialRampToValueAtTime(0.6, time + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + beat * 0.8);
+        osc.connect(gain).connect(master);
+        osc.start(time);
+        osc.stop(time + beat);
+      }
+
+      const startT = audioCtx.currentTime + 0.05;
+      for (let i = 0; i < 64; i++) {
+        play(i, startT + i * beat * 0.5);
+      }
+
+      setInterval(() => {
+        const base = audioCtx.currentTime + 0.05;
+        for (let i = 0; i < 32; i++) {
+          play(i, base + i * beat * 0.5);
+        }
+      }, 16000);
+    }
+
+    function showFortune(text) {
+      if (!text) return;
+      const card = document.getElementById("fortuneCard");
+      const content = document.getElementById("fortuneText");
+      content.textContent = text;
+      card.classList.add("show");
+      clearTimeout(showFortune.hideTimer);
+      showFortune.hideTimer = setTimeout(() => {
+        card.classList.remove("show");
+      }, 7200);
+    }
+
+    function handleTap(event) {
+      startMusic();
+      if (!gameActive) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (event.clientX ?? event.touches?.[0]?.clientX) - rect.left;
+      const y = (event.clientY ?? event.touches?.[0]?.clientY) - rect.top;
+      if (x == null || y == null) return;
+
+      // проверка попадания по мячам — стоп игра
+      for (const ball of jugglingBalls) {
+        const dx = x - ball.x;
+        const dy = y - ball.y;
+        if (dx * dx + dy * dy <= Math.pow(24, 2)) {
+          gameActive = false;
+          timerEl.classList.add("expired");
+          document.getElementById("fortuneText").textContent = "Ты попал(а) в мячик — жонглёр обиделся и игра остановилась.";
+          document.getElementById("fortuneCard").classList.add("show");
+          return;
+        }
+      }
+
+      for (const flake of snowflakes) {
+        const dx = x - flake.x;
+        const dy = y - flake.y;
+        if (dx * dx + dy * dy <= Math.pow(flake.radius * 1.6, 2)) {
+          if (flake.isFortune) {
+            showFortune(flake.message);
+          }
+          Object.assign(
+            flake,
+            createSnowflake(flake.id, flake.isFortune, flake.message, flake.fortuneSmall),
+            { y: -flake.radius }
+          );
+          break;
+        }
+      }
+    }
+
+    canvas.addEventListener("click", handleTap);
+    canvas.addEventListener("pointerdown", handleTap);
+
+    window.addEventListener("keydown", startMusic, { once: true });
+    window.addEventListener("pointerdown", startMusic, { once: true });
+  </script>
+</body>
+</html>
