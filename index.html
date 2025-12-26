@@ -336,8 +336,8 @@
         x: Math.random() * canvas.width,
         y: -Math.random() * canvas.height,
         radius: size,
-        speed: isMobile ? (0.3 + size * 0.025) : (0.35 + size * 0.035), // чуть медленнее на мобильных
-        sway: isMobile ? (Math.random() * 0.7 + 0.4) : (Math.random() * 1 + 0.6), // меньше качание на мобильных
+        speed: (isMobile ? (0.3 + size * 0.025) : (0.35 + size * 0.035)) * 1.25, // в 1.25 раз быстрее
+        sway: isMobile ? (Math.random() * 1.2 + 0.8) : (Math.random() * 1.8 + 1.2), // более хаотичное качание
         phase: Math.random() * Math.PI * 2,
         spin: Math.random() * 0.03 + 0.006,
         angle: 0,
@@ -664,8 +664,9 @@
     function updateSnowflakes(delta) {
       updateWind(delta);
       snowflakes.forEach((flake) => {
-        flake.y += flake.speed * delta * 0.09; // быстрее падение
-        flake.x += Math.sin(flake.phase + flake.y * 0.02) * flake.sway + wind * delta * 0.05;
+        flake.y += flake.speed * delta * 0.1125; // в 1.25 раз быстрее (0.09 * 1.25)
+        // Более хаотичное движение: увеличен коэффициент влияния фазы и добавлена случайность
+        flake.x += Math.sin(flake.phase + flake.y * 0.035) * flake.sway + wind * delta * 0.08 + (Math.random() - 0.5) * 0.3;
         flake.angle += flake.spin * delta;
 
         if (flake.y > canvas.height + flake.radius) {
